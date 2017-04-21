@@ -94,13 +94,13 @@ type alias Name = {
 
 
 type BlogPost = BlogPost {
-    id : String,
+    id : Int,
     title : String,
     at : Date
   }
 
 type TalkSession = TalkSession {
-    id : String,
+    id : Int,
     title : String, 
     at : Date
   }
@@ -234,6 +234,75 @@ validateEmailString str =
 
 
 
+
+-- poe zit shone
+
+
+type Two a = Two a a
+
+twoEg : Two String
+twoEg = Two "hello" "world"
+
+
+
+
+
+
+type Serializer a =
+  Serializer (a -> String)
+
+-- Or:
+--   type Serializer input = Serializer (input -> String)
+
+stringSerializer : Serializer String
+stringSerializer =
+  Serializer (\str -> "\"" ++ str ++ "\"")
+  -- Totally unsafe, but hey.
+
+intSerializer : Serializer Int 
+intSerializer =
+  Serializer (\num -> toString num)
+
+thingSerializer : Serializer { id : Int, title : String }
+thingSerializer =
+  Serializer (\thing ->
+    String.join "," [
+      runSerializer intSerializer thing.id,
+      runSerializer stringSerializer thing.title
+    ]
+  )
+
+runSerializer : Serializer a -> a -> String
+runSerializer (Serializer func) input =
+  func input
+
+-- TODO: lifts, maps, andThens
+-- Look similar to anything? import Json.Encode sometime.
+
+
+
+
+type ParseError =
+    BadCharacter String
+  | BlahBlahBadThings
+
+type Parser a =
+  Parser (String -> Result ParseError (String, a))
+
+  
+
+
+{-
+type ParserAeson a =
+  ParserAeson (
+    forall f r.
+    Parser a ->
+    JSONPath ->
+    (JSONPath -> String -> f r) ->
+    (JSONPath -> a -> String -> f r) ->
+    f r
+  )
+-}
 
 
 
