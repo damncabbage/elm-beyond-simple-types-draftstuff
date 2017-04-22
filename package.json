@@ -1,0 +1,15 @@
+{
+  "name": "elm-beyond-simple-types-draftstuff",
+  "version": "1.0.0",
+  "description": "'Beyond Simple Types in Elm', rough live-coding / talk material.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache 2.0",
+  "devDependencies": {
+    "elm": "^0.18.0"
+  }
+}
