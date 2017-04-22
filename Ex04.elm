@@ -1,4 +1,9 @@
-module ExNNGhostStories exposing (..)
+-- fan tom
+module Ex04 exposing (..)
+
+import Email exposing (Email, EmailError, create)
+import Email
+
 
 -- Define a type; this is a simple wrapper over number. BUT, it's a bit weird:
 
@@ -32,38 +37,43 @@ boiling =
 
 
 
+-- Same idea:
 
---console.log(Temperature.unwrap(boiling)); // => 100
+type FormData value tag = FormData value
+type Validated = Validated
+type Unvalidated = Unvalidated
+
+create : a -> FormData a Unvalidated
+create a = FormData a
+
+validateEmail :
+  FormData String Unvalidated ->
+  Result EmailError (FormData Email Validated)
+validateEmail (FormData rawEmail) =
+  Result.map
+    (\email -> FormData email)
+    (Email.create rawEmail)
 
 
 
-{-
-class OnGround {}
-class Taxiing {}
-class InAir {}
-class Landing {}
-type PlaneState = OnGround | Taxiing | InAir | Landing;
 
-class Plane<S: PlaneState> extends TypeWrapper<{flightCode: string}> {}
 
-function taxi(p: Plane<OnGround>): Plane<Taxiing> { return Plane.wrap(Plane.unwrap(p)); }
-function takeOff(p: Plane<Taxiing>): Plane<InAir> { return Plane.wrap(Plane.unwrap(p)); }
-function approach(p: Plane<InAir>): Plane<Landing> { return Plane.wrap(Plane.unwrap(p)); }
-function crash<T: PlaneState>(p: Plane<T>): Plane<OnGround> { return Plane.wrap(Plane.unwrap(p)); }
--}
+-- State machine:
 
-{-
-class FormData<V,T> extends TypeWrapper<V> {}
-class Validated {}
-class Unvalidated {}
+type Plane state = Plane { flightCode : String }
+type OnGround = OnGround
+type Taxiing = Taxiing
+type InAir = InAir
+type Landing = Landing
 
-function validateEmail(
-  x: FormData<string,Unvalidated>
-): (FormData<string,Validated> | null) {
-  const email = FormData.unwrap(x);
-  if (email.match(/@/)) {
-    return FormData.wrap(email);
-  }
-  return null;
-}
--}
+taxi : Plane OnGround -> Plane Taxiing
+taxi (Plane x) = Plane x
+
+takeOff : Plane Taxiing -> Plane InAir
+takeOff (Plane x) = Plane x
+
+approach : Plane InAir -> Plane Landing
+approach (Plane x) = Plane x
+
+crash : Plane a -> Plane OnGround
+crash (Plane x) = Plane x

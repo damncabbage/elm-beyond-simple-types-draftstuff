@@ -32,6 +32,12 @@ createEmail str =
       |> Result.andThen (\str -> Ok (Email str))
 
 
+
+
+-- meek sup sand separation
+
+type UUID = UUID String
+
 type alias User1 = {
     id : String,
     name : String,
@@ -43,3 +49,4 @@ type alias User2 = {
     name : String,
     email : Email
   }
+

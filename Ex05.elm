@@ -42,19 +42,20 @@ first list =
 
 
 
-
 -- so every time...
 
 type Item = Item { id : String, label : String } -- etc.
 
-{-
-getSelection : Maybe Item -> List Item -> Maybe Item
-getSelection selected items =
-  case selected of
-    Just selectedItem ->
-      findItemByItem
+type DisplayList = DisplayList (List Item)
 
--}
+someItems : List Item
+someItems =
+  [ Item { id = "a1", label = "Apple" }
+  , Item { id = "b2", label = "Banana" }
+  , Item { id = "c3", label = "Rock" }
+  ]
+
+
 
 
 
@@ -99,6 +100,7 @@ findByOrgId id users =
 
 -- Helpers
 
+{-
 someUser : User Organisation
 someUser =
   User
@@ -122,6 +124,35 @@ someUsers =
   , User { id = UserId "4", username = "Harish"
          , organisation = OrgId "1" }
   ]
+-}
+
+
+
+
+-- Textbox behind a checkbox.
+
+type alias SomeUI = {
+    hasTitle: Bool,
+    title: Maybe String
+  }
+
+
+
+
+-- http://blog.jenkster.com/2016/06/how-elm-slays-a-ui-antipattern.html
+
+type Status =
+    Loading
+  | Failed
+  | Succeeded
+
+type alias PostsFromServer =
+  { status: Status
+  , items: List String
+  , error: Maybe String
+  }
+
+
 
 
 
