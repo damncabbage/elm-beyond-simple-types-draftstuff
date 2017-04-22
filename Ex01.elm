@@ -101,7 +101,7 @@ type BlogPost = BlogPost {
 
 type TalkSession = TalkSession {
     id : Int,
-    title : String, 
+    title : String,
     at : Date
   }
 
@@ -170,8 +170,12 @@ map func opt =
 
 
 
+
 ---- It's not real, but we can pretend it is: ----
 -- type List a = ...
+
+
+
 
 
 
@@ -247,6 +251,9 @@ twoEg = Two "hello" "world"
 
 
 
+-- con tay nahs
+
+
 
 type Serializer a =
   Serializer (a -> String)
@@ -290,6 +297,11 @@ type Parser a =
   Parser (String -> Result ParseError (String, a))
 
   
+
+
+
+
+
 
 
 {-

@@ -43,5 +43,3 @@ type alias User2 = {
     name : String,
     email : Email
   }
-
-
