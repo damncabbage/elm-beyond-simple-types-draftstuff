@@ -27,7 +27,8 @@ isRed : String -> Bool
 isRed x =
   x == "Red"
 
-fullName : { given : String, surname : String } -> String
+fullName : { given : String, surname : String }
+  -> String
 fullName name =
   name.given ++ " " ++ name.surname
 
@@ -36,31 +37,42 @@ fullName name =
 -- Declaring some simple types: ----
 
 
+-- Type called "Thing", that has a "constructor" or function
+-- called "Thing". (They are separate namespaces; it's just
+-- convention that the names are the same if it's just
+-- a simple thing like this.)
 type Thing = Thing
 
--- AKA: (), or "Unit"
+-- ^== AKA: (), or "Unit", from Elm's standard library.
 
 
 
-
-
+-- Another simple type; an Email that has a String.
+-- "Email" is a type, and "Email" is also a function that
+-- is "String -> Email".
 type Email = Email String
 
 getEmail : Email -> String
 getEmail (Email address) =
   address
 
-
-
-
-
+-- Email is similar in structure (a thing with a String),
+-- but Email and Title can't be confused.
 type Title = Title String
 
+-- eg.
+-- > getEmail (Email "foo@bar.com")
+-- "foo@bar.com" : String
+-- > getEmail (Title "hello")
+-- Kaboom! 💥
 
 
 
 
 
+
+-- Type is "Color", and has two constructors / functions
+-- called "Red" and "Green".
 type Color =
     Red
   | Green
@@ -75,7 +87,7 @@ colorToString col =
 
 
 
-
+-- Let's combine two unions (Color and Light):
 type Light =
     LightOff
   | LightOn Color
@@ -83,6 +95,21 @@ type Light =
 
 
 
+-- Aliases
+-- From the standard library:
+type alias Time = Float
+
+-- Can substitute any Time with Float and vice-versa, with
+-- no error or warning. It's just a shortcut:
+addThree : Float -> Time
+addThree x = x + 3
+
+seven : Float
+seven = addThree 4
+
+
+-- Same deal; Name is an alias for a record, and there's
+-- no differentiation.
 
 type alias Name = {
     given : String,
@@ -91,8 +118,7 @@ type alias Name = {
 
 
 
-
-
+-- eg.
 type BlogPost = BlogPost {
     id : Int,
     title : String,
@@ -114,11 +140,12 @@ whenIsTalk (TalkSession details) =
 
 
 
--- tie per parra metres
-
+-- Type Parameters
+-- Something you declare as a placeholder; it's a slot
+-- that something using the "Wrapped" type has to fill.
 type Wrapped thing = Wrapped thing
 
-
+-- eg.
 wrapString : String -> Wrapped String
 wrapString str =
   Wrapped str
@@ -134,8 +161,11 @@ wrapInt int =
 
 
 
--- polly more fizz 'em
-
+-- Polymorphism
+-- We're declaring a function that works for any type, and
+-- representing that with a type variable called "a".
+-- (Both "a"s must be the same type; like with wrapString
+-- above.)
 wrap : a -> Wrapped a
 wrap thing =
   Wrapped thing
@@ -144,21 +174,32 @@ unwrap : Wrapped a -> a
 unwrap (Wrapped thing) =
   thing
 
+-- That "wrap" function is the same as the "Wrapped" constructor, eg.
+-- > wrap
+-- <function> : a -> Ex01.Wrapped a
+-- > Wrapped
+-- <function> : a -> Ex01.Wrapped a
+
+
 
 
 
 
 type Optional a =
-    None
-  | Some a
+    None   -- Nothing
+  | Some a -- Just
 
+-- ^== AKA type Maybe a = ...
+-- from the standard library.
 
 some : a -> Optional a
 some item = Some item
 
 
-
-map : (from -> to) -> Optional from -> Optional to
+-- Implementing our own Maybe.map:
+map : (from -> to) ->
+  Optional from ->
+  Optional to
 map func opt =
   case opt of
     Some x ->
@@ -171,15 +212,19 @@ map func opt =
 
 
 
----- It's not real, but we can pretend it is: ----
+
+
+-- It's not real, but we can pretend it is:
+
+--
 -- type List a = ...
+--
 
 
 
 
 
-
-
+-- You can use type parameters in all sorts of things:
 
 type Duration timeType = Duration {
     from : timeType,
@@ -192,7 +237,7 @@ daysInDuration (Duration { from, until }) =
   7 -- TODO: Write answer here before running the talk.
 
 
-
+-- Or using Duration:
 type Class = Class {
     subject : String,
     dailyAt : Duration Time
@@ -215,10 +260,7 @@ type Either a b =
   | Right b
 
 
-
-
-
-
+-- eg.
 
 type EmailError =
     InvalidChars
@@ -237,12 +279,24 @@ validateEmailString str =
           Right str
 
 
+-- ^== AKA Result, which looks like:
+-- type Result error value =
+--     Err error
+--   | Ok value
 
 
--- poe zit shone
 
+
+
+-- Position
+
+-- The right-hand side isn't just a straight "wrapping".
+-- eg.
 
 type Two a = Two a a
+-- Or could be: type Two a = Two a a String Int Boolean
+-- if we really want to; the left is just declaring the
+-- type, not the internal structure.
 
 twoEg : Two String
 twoEg = Two "hello" "world"
@@ -250,23 +304,22 @@ twoEg = Two "hello" "world"
 
 
 
+-- Or more things with "strange" right-hand sides:
+--
+-- (You usually wouldn't write these things yourself in
+-- UI code, but this is just showing some of the
+-- wacky possibilities.)
 
--- con tay nahs
+type Serializer input =
+  Serializer (input -> String)
 
-
-
-type Serializer a =
-  Serializer (a -> String)
-
--- Or:
---   type Serializer input = Serializer (input -> String)
 
 stringSerializer : Serializer String
 stringSerializer =
   Serializer (\str -> "\"" ++ str ++ "\"")
-  -- Totally unsafe, but hey.
+  -- We're not escaping quotes, but this is a toy.
 
-intSerializer : Serializer Int 
+intSerializer : Serializer Int
 intSerializer =
   Serializer (\num -> toString num)
 
@@ -283,57 +336,20 @@ runSerializer : Serializer a -> a -> String
 runSerializer (Serializer func) input =
   func input
 
--- TODO: lifts, maps, andThens
--- Look similar to anything? import Json.Encode sometime.
+-- You could write something like Json.Encode like this,
+-- to match Json.Decode's (... : Decoder a) type.
+-- TODO: lifts, maps, andThens, all possible if you wanna.
 
 
-
+-- And the flip-side:
 
 type ParseError =
     BadCharacter String
   | BlahBlahBadThings
 
 type Parser a =
-  Parser (String -> Result ParseError (String, a))
-
-  
-
-
-
-
-
-
-
-{-
-type ParserAeson a =
-  ParserAeson (
-    forall f r.
-    Parser a ->
-    JSONPath ->
-    (JSONPath -> String -> f r) ->
-    (JSONPath -> a -> String -> f r) ->
-    f r
-  )
--}
-
-
-
-
-
-validateEmailString2 : String -> Result EmailError String
-validateEmailString2 str =
-  let
-    check err rx = boolToResult err (Regex.contains (regex rx))
-  in
-    (Ok str)
-      |> Result.andThen (check InvalidChars "^[\\w@+_.-]+$")
-      |> Result.andThen (check NoDomain "^[^@]+@[^@]+$")
-
-boolToResult : e -> (r -> Bool) -> r -> Result e r
-boolToResult failure predicate val =
-  if predicate val
-    then Ok val
-    else Err failure
+  Parser
+    (String -> Result ParseError (String, a))
 
 
 
@@ -344,8 +360,7 @@ boolToResult failure predicate val =
 
 
 
-
--- helpers
+-- Demo helpers
 someDate : Date
 someDate =
   fromOk (Date.fromString "2017-04-22 13:40:00")

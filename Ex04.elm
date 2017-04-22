@@ -1,4 +1,4 @@
--- fan tom
+---- Phantom Types ----
 module Ex04 exposing (..)
 
 import Email exposing (Email, EmailError, create)
@@ -9,8 +9,12 @@ import Email
 
 type Temperature a = Temperature Float
 
-
--- And some types; only used for the type; the right-hand side is meaningless.
+-- And some types. Only used for the type;
+-- the "a" param on the left side of
+-- Temperature definition is only for differentiating
+-- by type.
+-- All the same thing at run-time (wrapper over Float),
+-- after type-checking.
 type Celsius = Celsius
 type Fahrenheit = Fahrenheit
 
@@ -29,10 +33,14 @@ createCels : Float -> Temperature Celsius
 createCels num =
   Temperature num
 
-boiling : Temperature Fahrenheit
-boiling =
+boilingFahr : Temperature Fahrenheit
+boilingFahr =
   celsiusToFahrenheit (createCels 212)
-
+-- Can't do:
+-- > celsiusToFahrenheit boilingFahr
+-- (Kaboom! Type error. You need to explicitly
+-- convert Fahrenheit to Celsius before being
+-- able to use it with that function.)
 
 
 
@@ -42,6 +50,10 @@ boiling =
 type FormData value tag = FormData value
 type Validated = Validated
 type Unvalidated = Unvalidated
+
+-- Export only the type and these functions; can't
+-- create a FormData value that is Validated without
+-- using them.
 
 create : a -> FormData a Unvalidated
 create a = FormData a
@@ -58,9 +70,10 @@ validateEmail (FormData rawEmail) =
 
 
 
--- State machine:
+---- A state machine, with types ----
 
 type Plane state = Plane { flightCode : String }
+
 type OnGround = OnGround
 type Taxiing = Taxiing
 type InAir = InAir
@@ -75,5 +88,6 @@ takeOff (Plane x) = Plane x
 approach : Plane InAir -> Plane Landing
 approach (Plane x) = Plane x
 
+-- a little morbid
 crash : Plane a -> Plane OnGround
 crash (Plane x) = Plane x

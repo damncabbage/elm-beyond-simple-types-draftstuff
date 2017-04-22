@@ -1,5 +1,5 @@
 module Email exposing
-  ( Email
+  ( Email -- <= Doesn't expose constructor! Only type.
   , EmailError(..)
   , create
   , unwrap
@@ -21,6 +21,9 @@ unwrap : Email -> String
 unwrap (Email address) =
   address
 
+-- Only way to construct an Email.
+-- Which means you have to handle the Result, in
+-- case the Email is wrong.
 create : String -> Result EmailError Email
 create str =
   let
